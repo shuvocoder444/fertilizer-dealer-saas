@@ -41,4 +41,13 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
     }
+
+    public function test_dashboard_can_render_for_user_without_current_team(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $response->assertStatus(200);
+    }
 }

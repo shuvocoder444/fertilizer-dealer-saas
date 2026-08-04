@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -9,53 +8,33 @@ use Illuminate\Http\Request;
 |--------------------------------------------------------------------------
 */
 
-// উদাহরণ: আপনার হোম রাউটটি যদি এমন থাকে
-Route::get('/', function (Request $request) {
-    if ($request->header('HX-Request')) {
-        return view('pages.home-content');
-    }
-    return view('welcome'); // বা view('pages.home')
-})->name('home'); // <-- এই ->name('home') অংশটুকু যুক্ত করুন
+// Public Routes
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
+
+Route::get('/features', function () {
+    return view('pages.features');
+})->name('features');
+
+Route::get('/about', function () {
+    return view('pages.about');
+})->name('about');
+
+Route::get('/pricing', function () {
+    return view('pages.pricing');
+})->name('pricing');
 
 
-// Authenticated Dashboard Routes (Jetstream)
+// প্রটেক্টেড ড্যাশবোর্ড রাউট
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
 
-    Route::get('/dashboard', function (Request $request) {
-        if ($request->header('HX-Request')) {
-            return view('dashboard-content');
-        }
-
+    Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
 });
-
-
-
-
-
-Route::get('/features', function (Request $request) {
-    if ($request->header('HX-Request')) {
-        return view('pages.features-content'); // শুধুমাত্র Partial HTML
-    }
-    return view('pages.features'); // Full Layout
-})->name('features');
-
-Route::get('/about', function (Request $request) {
-    if ($request->header('HX-Request')) {
-        return view('pages.about-content');
-    }
-    return view('pages.about');
-})->name('about');
-
-Route::get('/pricing', function (Request $request) {
-    if ($request->header('HX-Request')) {
-        return view('pages.pricing-content');
-    }
-    return view('pages.pricing');
-})->name('pricing');
