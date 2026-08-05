@@ -6,7 +6,6 @@
 
         <!-- Register Form Section -->
         <div class="flex-grow flex flex-col justify-center items-center px-4 py-10 sm:px-6 lg:px-8">
-            <!-- max-w-2xl বাড়িয়ে কার্ডটি চওড়া করা হলো -->
             <div class="w-full max-w-2xl space-y-6">
 
                 <!-- Title & Subtitle -->
@@ -30,7 +29,7 @@
                     <form method="POST" action="{{ route('register') }}" class="space-y-5">
                         @csrf
 
-                        <!-- 2-Column Grid for Name & Email on Desktop -->
+                        <!-- 2-Column Grid for Name & Email -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <!-- Name -->
                             <div>
@@ -66,6 +65,18 @@
                                        placeholder="••••••••"
                                        class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm text-slate-900 placeholder-slate-400 transition duration-150 ease-in-out" />
                             </div>
+                        </div>
+
+                        <!-- Account Role Selection Dropdown -->
+                        <div>
+                            <label for="role" class="block text-sm font-medium text-slate-700 mb-1">Select Account Type</label>
+                            <select id="role" name="role" required
+                                    class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm text-slate-900 transition duration-150 ease-in-out bg-white">
+                                <option value="" disabled {{ old('role') ? '' : 'selected' }}>Select your role...</option>
+                                <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="team" {{ old('role') == 'team' ? 'selected' : '' }}>Team Member</option>
+                                <option value="dealer" {{ old('role') == 'dealer' ? 'selected' : '' }}>Dealer</option>
+                            </select>
                         </div>
 
                         <!-- Terms & Privacy -->

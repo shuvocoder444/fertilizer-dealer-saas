@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
 
 class MakeSuperAdmin extends Command
 {
@@ -56,12 +57,15 @@ class MakeSuperAdmin extends Command
             'name' => $name,
             'email' => $email,
             'password' => Hash::make($password),
-            'email_verified_at' => now(), // Auto-verify email
-            'is_super_admin' => true,     // Optional: If using a boolean flag on users table
+            'email_verified_at' => now(),
         ]);
 
-        // Optional: If using Spatie Permission package
-        // $user->assignRole('super-admin');
+        $role = Role::firstOrCreate([
+            'name' => 'super-admin',
+            'guard_name' => 'web',
+        ]);
+
+        $user->assignRole($role);
 
         $this->info("Super Admin '{$user->name}' created successfully!");
 
