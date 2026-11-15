@@ -333,46 +333,14 @@
         </div>
 
         <div class="flex items-center space-x-3 ms-auto">
-            <!-- Dealership / Teams Switcher Dropdown -->
-            @if (Laravel\Jetstream\Jetstream::hasTeamFeatures())
-                @php
-                    $currentTeam = Auth::user()?->currentTeam;
-                @endphp
-
-                <div class="ms-3 relative">
-                    <x-dropdown align="right" width="60">
-                        <x-slot name="trigger">
-                            <span class="inline-flex rounded-md">
-                                <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none focus:bg-gray-50 active:bg-gray-50 transition">
-                                    {{ $currentTeam?->name ?? __('No Dealership Selected') }}
-                                    <svg class="ms-2 -me-0.5 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                    </svg>
-                                </button>
-                            </span>
-                        </x-slot>
-
-                        <x-slot name="content">
-                            <div class="w-60">
-                                @if ($currentTeam)
-                                    <div class="block px-4 py-2 text-xs text-gray-400">{{ __('Manage Dealership') }}</div>
-                                    <x-dropdown-link href="{{ route('teams.show', $currentTeam->id) }}">{{ __('Dealership Settings') }}</x-dropdown-link>
-                                    @can('create', Laravel\Jetstream\Jetstream::newTeamModel())
-                                        <x-dropdown-link href="{{ route('teams.create') }}">{{ __('Create New Dealership') }}</x-dropdown-link>
-                                    @endcan
-                                @endif
-                                @if (Auth::user()->allTeams()->count() > 1)
-                                    <div class="border-t border-gray-200"></div>
-                                    <div class="block px-4 py-2 text-xs text-gray-400">{{ __('Switch Dealership') }}</div>
-                                    @foreach (Auth::user()->allTeams() as $team)
-                                        <x-switchable-team :team="$team" />
-                                    @endforeach
-                                @endif
-                            </div>
-                        </x-slot>
-                    </x-dropdown>
-                </div>
-            @endif
+            <!-- Dealership Name Badge (Single Dealership Mode) -->
+            @php
+                $currentTeam = Auth::user()?->currentTeam;
+            @endphp
+            <div class="hidden sm:flex items-center px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200/80 text-emerald-900 text-xs font-bold gap-2">
+                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2z"/></svg>
+                <span>{{ $currentTeam?->name ?? 'ফার্টিলাইজার ডিলারশিপ' }}</span>
+            </div>
 
             <!-- Top Header User Dropdown -->
             <div class="ms-3 relative">

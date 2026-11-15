@@ -341,6 +341,37 @@ class DealerOperationsController extends Controller
         return redirect()->back()->with('success', 'নতুন কৃষক / কাস্টমার সফলভাবে নিবন্ধিত হয়েছে!');
     }
 
+    public function showCustomer($id)
+    {
+        $teamId = $this->getTeamId();
+        $query = Customer::with(['sales.items.product', 'dueCollections']);
+        if ($teamId) {
+            $query->where('team_id', $teamId);
+        }
+        $customer = $query->findOrFail($id);
+
+        $sales = $customer->sales()->latest()->paginate(15);
+        $collections = $customer->dueCollections()->latest()->get();
+        $totalPaid = $customer->sales()->sum('paid_amount') + $customer->dueCollections()->sum('amount');
+
+        return view('dealer.customers.show', compact('customer', 'sales', 'collections', 'totalPaid'));
+    }
+
+    public function destroyCustomer($id)
+    {
+        $teamId = $this->getTeamId();
+        $query = Customer::query();
+        if ($teamId) {
+            $query->where('team_id', $teamId);
+        }
+        $customer = $query->findOrFail($id);
+
+        $customerName = $customer->name;
+        $customer->delete();
+
+        return redirect()->route('dealer.customers.index')->with('success', "কৃষক/কাস্টমার '{$customerName}' সফলভাবে মুছে ফেলা হয়েছে!");
+    }
+
     // 7. Due / Credit Ledger
     public function dues()
     {

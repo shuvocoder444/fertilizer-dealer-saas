@@ -32,6 +32,20 @@ class CreateTeam implements CreatesTeams
             'personal_team' => false,
         ]));
 
+        \App\Models\Dealer::firstOrCreate(
+            ['team_id' => $team->id],
+            [
+                'user_id' => $user->id,
+                'company_name' => $team->name,
+                'contact_person' => $user->name,
+                'phone' => '017' . rand(10000000, 99999999),
+                'district' => 'বাংলাদেশ',
+                'status' => 'active',
+                'subscription_plan_id' => 2,
+                'subscription_ends_at' => now()->addYear(),
+            ]
+        );
+
         return $team;
     }
 }

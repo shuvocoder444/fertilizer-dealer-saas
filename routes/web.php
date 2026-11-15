@@ -90,6 +90,8 @@ Route::middleware([
 
         Route::get('/customers', [DealerOperationsController::class, 'customers'])->name('customers.index');
         Route::post('/customers', [DealerOperationsController::class, 'storeCustomer'])->name('customers.store');
+        Route::get('/customers/{id}', [DealerOperationsController::class, 'showCustomer'])->name('customers.show');
+        Route::delete('/customers/{id}', [DealerOperationsController::class, 'destroyCustomer'])->name('customers.destroy');
 
         Route::get('/dues', [DealerOperationsController::class, 'dues'])->name('dues.index');
         Route::post('/dues/collect', [DealerOperationsController::class, 'collectDue'])->name('dues.collect');

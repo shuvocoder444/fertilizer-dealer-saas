@@ -24,18 +24,18 @@
         @livewire('navigation-menu')
 
         <!-- Page Main Body (Adjusted for Fixed Sidebar & Header) -->
-        <div class="lg:ps-64 pt-16 min-h-screen flex flex-col">
+        <div class="lg:pl-64 pt-16 min-h-screen flex flex-col bg-gray-50">
             <!-- Page Heading -->
             @if (isset($header))
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <header class="bg-white border-b border-gray-200 shadow-sm">
+                    <div class="w-full max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
                 </header>
             @endif
 
             <!-- Page Content -->
-            <main class="flex-1">
+            <main class="flex-1 w-full">
                 {{ $slot }}
             </main>
         </div>

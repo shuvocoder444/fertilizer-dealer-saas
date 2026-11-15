@@ -43,28 +43,49 @@
                                 <th class="px-5 py-3.5">মোট ক্রয় (৳)</th>
                                 <th class="px-5 py-3.5">বর্তমান বাকি (৳)</th>
                                 <th class="px-5 py-3.5">ক্রেডিট লিমিট</th>
+                                <th class="px-5 py-3.5 text-right">অ্যাকশন / প্রোফাইল</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @forelse($customers as $c)
                                 <tr class="hover:bg-gray-50/50">
-                                    <td class="px-5 py-4 font-bold text-gray-900">{{ $c->name }}<br><span class="text-xs text-gray-400">NID: {{ $c->nid ?? 'N/A' }}</span></td>
-                                    <td class="px-5 py-4 font-semibold text-indigo-600">{{ $c->phone }}</td>
-                                    <td class="px-5 py-4">
-                                        <span class="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-800">
+                                    <td class="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
+                                        <a href="{{ route('dealer.customers.show', $c->id) }}" class="hover:text-emerald-600 transition">
+                                            {{ $c->name }}
+                                        </a>
+                                        <br><span class="text-xs text-gray-400 font-normal">NID: {{ $c->nid ?? 'N/A' }}</span>
+                                    </td>
+                                    <td class="px-5 py-4 font-semibold text-indigo-600 whitespace-nowrap">{{ $c->phone }}</td>
+                                    <td class="px-5 py-4 whitespace-nowrap">
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200">
                                             {{ $c->customer_type }}
                                         </span>
                                     </td>
-                                    <td class="px-5 py-4 text-xs">{{ $c->village ?? $c->address ?? 'N/A' }}</td>
-                                    <td class="px-5 py-4 font-semibold text-gray-900">৳ {{ number_format($c->total_purchased) }}</td>
-                                    <td class="px-5 py-4 font-black {{ $c->current_due > 0 ? 'text-red-600' : 'text-emerald-600' }}">
+                                    <td class="px-5 py-4 text-xs whitespace-nowrap text-gray-700">{{ $c->village ?? $c->address ?? 'N/A' }}</td>
+                                    <td class="px-5 py-4 font-semibold text-gray-900 whitespace-nowrap">৳ {{ number_format($c->total_purchased) }}</td>
+                                    <td class="px-5 py-4 font-black whitespace-nowrap {{ $c->current_due > 0 ? 'text-red-600' : 'text-emerald-600' }}">
                                         ৳ {{ number_format($c->current_due) }}
                                     </td>
-                                    <td class="px-5 py-4 text-xs text-gray-500">৳ {{ number_format($c->credit_limit) }}</td>
+                                    <td class="px-5 py-4 text-xs text-gray-500 whitespace-nowrap">৳ {{ number_format($c->credit_limit) }}</td>
+                                    <td class="px-5 py-4 text-right whitespace-nowrap">
+                                        <div class="inline-flex items-center gap-2">
+                                            <a href="{{ route('dealer.customers.show', $c->id) }}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg border border-emerald-200 transition">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                                <span>প্রোফাইল ও খতিয়ান</span>
+                                            </a>
+                                            <form method="POST" action="{{ route('dealer.customers.destroy', $c->id) }}" onsubmit="return confirm('আপনি কি নিশ্চিতভাবে এই কৃষক/কাস্টমারকে মুছে ফেলতে চান?');" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition" title="মুছে ফেলুন">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-5 py-8 text-center text-gray-400">কোনো কৃষক বা ক্রেতা নিবন্ধিত নেই।</td>
+                                    <td colspan="8" class="px-5 py-8 text-center text-gray-400">কোনো কৃষক বা ক্রেতা নিবন্ধিত নেই।</td>
                                 </tr>
                             @endforelse
                         </tbody>

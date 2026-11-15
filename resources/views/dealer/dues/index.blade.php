@@ -42,12 +42,19 @@
                             <tbody class="divide-y divide-gray-100">
                                 @forelse($customersWithDue as $c)
                                     <tr class="hover:bg-gray-50/50">
-                                        <td class="px-5 py-4 font-bold text-gray-900">{{ $c->name }}</td>
-                                        <td class="px-5 py-4 text-xs">{{ $c->village ?? 'N/A' }}</td>
-                                        <td class="px-5 py-4 text-xs text-indigo-600">{{ $c->phone }}</td>
-                                        <td class="px-5 py-4 font-black text-red-600">৳ {{ number_format($c->current_due) }}</td>
-                                        <td class="px-5 py-4 text-right">
-                                            <button onclick="openCollectModal('{{ $c->id }}', '{{ $c->name }}', '{{ $c->current_due }}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded">
+                                        <td class="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
+                                            <a href="{{ route('dealer.customers.show', $c->id) }}" class="hover:text-emerald-600 transition">
+                                                {{ $c->name }}
+                                            </a>
+                                        </td>
+                                        <td class="px-5 py-4 text-xs whitespace-nowrap text-gray-700">{{ $c->village ?? 'N/A' }}</td>
+                                        <td class="px-5 py-4 text-xs whitespace-nowrap text-indigo-600 font-semibold">{{ $c->phone }}</td>
+                                        <td class="px-5 py-4 font-black whitespace-nowrap text-red-600">৳ {{ number_format($c->current_due) }}</td>
+                                        <td class="px-5 py-4 text-right whitespace-nowrap">
+                                            <a href="{{ route('dealer.customers.show', $c->id) }}" class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded me-2 transition">
+                                                খতিয়ান
+                                            </a>
+                                            <button onclick="openCollectModal('{{ $c->id }}', '{{ $c->name }}', '{{ $c->current_due }}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded transition shadow-sm">
                                                 জমা নিন
                                             </button>
                                         </td>

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Create Team') }}
+        <h2 class="font-bold text-xl text-gray-800 leading-tight">
+            {{ __('নতুন ডিলারশিপ যুক্ত করুন (Create New Dealership)') }}
         </h2>
     </x-slot>
 
