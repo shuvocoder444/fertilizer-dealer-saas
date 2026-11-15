@@ -12,6 +12,8 @@ use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use App\Models\StaffMember;
+use App\Models\StaffSalary;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -66,7 +68,75 @@ class DealerOperationsController extends Controller
             'is_main' => Outlet::where('team_id', $teamId)->count() === 0,
         ]));
 
-        return redirect()->back()->with('success', 'নতুন আউটলেট সফলভাবে যুক্ত হয়েছে!');
+        return redirect()->back()->with('success', 'নতুন আউটলেট/গোডাউন সফলভাবে যুক্ত হয়েছে!');
+    }
+
+    public function updateOutlet(Request $request, $id)
+    {
+        $teamId = $this->getTeamId();
+        $outlet = Outlet::where('id', $id);
+        if (!Auth::user()->hasRole('super-admin')) {
+            $outlet->where('team_id', $teamId);
+        }
+        $outlet = $outlet->firstOrFail();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50',
+            'incharge_name' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+            'is_main' => 'nullable',
+        ]);
+
+        $isMain = $request->boolean('is_main');
+        if ($isMain) {
+            Outlet::where('team_id', $outlet->team_id)->where('id', '!=', $outlet->id)->update(['is_main' => false]);
+        }
+
+        $outlet->update([
+            'name' => $validated['name'],
+            'code' => $validated['code'] ?? $outlet->code,
+            'incharge_name' => $validated['incharge_name'] ?? null,
+            'phone' => $validated['phone'] ?? null,
+            'address' => $validated['address'] ?? null,
+            'is_main' => $isMain,
+        ]);
+
+        return redirect()->back()->with('success', "গোডাউন/আউটলেট '{$outlet->name}' এর তথ্য সফলভাবে আপডেট করা হয়েছে!");
+    }
+
+    public function setMainOutlet($id)
+    {
+        $teamId = $this->getTeamId();
+        $outlet = Outlet::where('id', $id);
+        if (!Auth::user()->hasRole('super-admin')) {
+            $outlet->where('team_id', $teamId);
+        }
+        $outlet = $outlet->firstOrFail();
+
+        Outlet::where('team_id', $outlet->team_id)->update(['is_main' => false]);
+        $outlet->update(['is_main' => true]);
+
+        return redirect()->back()->with('success', "'{$outlet->name}' কে প্রধান ডিপো (Main Godown) হিসেবে নির্ধারণ করা হয়েছে!");
+    }
+
+    public function destroyOutlet($id)
+    {
+        $teamId = $this->getTeamId();
+        $outlet = Outlet::where('id', $id);
+        if (!Auth::user()->hasRole('super-admin')) {
+            $outlet->where('team_id', $teamId);
+        }
+        $outlet = $outlet->firstOrFail();
+        $name = $outlet->name;
+
+        // Unlink any staff from this outlet
+        StaffMember::where('outlet_id', $outlet->id)->update(['outlet_id' => null]);
+
+        $outlet->delete();
+
+        return redirect()->back()->with('success', "গোডাউন/আউটলেট '{$name}' সফলভাবে মুছে ফেলা হয়েছে!");
     }
 
     // 2. Dealer Managers
@@ -76,8 +146,14 @@ class DealerOperationsController extends Controller
         $user = Auth::user();
         $team = $user->currentTeam ?? $user->personalTeam();
         $members = $team ? $team->allUsers() : collect([$user]);
+        $managerStaff = StaffMember::where('team_id', $teamId)
+            ->where(function ($q) {
+                $q->where('role_type', 'manager')->orWhere('has_login_access', true);
+            })
+            ->with(['outlet', 'user'])
+            ->get();
 
-        return view('dealer.managers.index', compact('members'));
+        return view('dealer.managers.index', compact('members', 'managerStaff'));
     }
 
     // 3. Products & Stock
@@ -344,11 +420,12 @@ class DealerOperationsController extends Controller
     public function showCustomer($id)
     {
         $teamId = $this->getTeamId();
-        $query = Customer::with(['sales.items.product', 'dueCollections']);
-        if ($teamId) {
-            $query->where('team_id', $teamId);
+        $user = Auth::user();
+        $customer = Customer::with(['sales.items.product', 'dueCollections'])->findOrFail($id);
+
+        if ($user && !$user->hasRole('super-admin') && $teamId && $customer->team_id && $customer->team_id != $teamId) {
+            abort(403, 'এই কৃষকের প্রোফাইল দেখার অনুমতি আপনার নেই।');
         }
-        $customer = $query->findOrFail($id);
 
         $sales = $customer->sales()->latest()->paginate(15);
         $collections = $customer->dueCollections()->latest()->get();
@@ -446,14 +523,188 @@ class DealerOperationsController extends Controller
     }
 
     // 10. Staff Management
-    public function staff()
+    public function staff(Request $request)
     {
         $teamId = $this->getTeamId();
-        $user = Auth::user();
-        $team = $user->currentTeam ?? $user->personalTeam();
-        $staffMembers = $team ? $team->allUsers() : collect([$user]);
+        $query = StaffMember::with(['outlet', 'user'])
+            ->where('team_id', $teamId);
 
-        return view('dealer.staff.index', compact('staffMembers'));
+        if ($request->filled('role_type')) {
+            $query->where('role_type', $request->role_type);
+        }
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('designation', 'like', "%{$search}%");
+            });
+        }
+
+        $staffMembers = $query->latest()->get();
+        $outlets = Outlet::where('team_id', $teamId)->get();
+
+        $totalStaff = StaffMember::where('team_id', $teamId)->count();
+        $activeStaff = StaffMember::where('team_id', $teamId)->where('status', 'active')->count();
+        $totalMonthlyPayroll = StaffMember::where('team_id', $teamId)->where('status', 'active')->sum('monthly_salary');
+        $paidThisMonth = StaffSalary::where('team_id', $teamId)
+            ->whereYear('payment_date', now()->year)
+            ->whereMonth('payment_date', now()->month)
+            ->sum('amount');
+
+        return view('dealer.staff.index', compact('staffMembers', 'outlets', 'totalStaff', 'activeStaff', 'totalMonthlyPayroll', 'paidThisMonth'));
+    }
+
+    public function storeStaff(Request $request)
+    {
+        $teamId = $this->getTeamId();
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:30',
+            'email' => 'nullable|email|max:255',
+            'designation' => 'required|string|max:255',
+            'role_type' => 'required|string', // manager, staff, cashier, incharge, delivery
+            'outlet_id' => 'nullable|exists:outlets,id',
+            'nid' => 'nullable|string|max:50',
+            'present_address' => 'nullable|string',
+            'permanent_address' => 'nullable|string',
+            'joining_date' => 'nullable|date',
+            'monthly_salary' => 'nullable|numeric|min:0',
+            'emergency_contact' => 'nullable|string|max:50',
+            'has_login_access' => 'nullable',
+            'login_password' => 'nullable|string|min:6',
+        ]);
+
+        $userId = null;
+        $hasAccess = $request->boolean('has_login_access');
+
+        if ($hasAccess && !empty($validated['email'])) {
+            $user = User::where('email', $validated['email'])->first();
+            if (!$user) {
+                $password = $request->input('login_password') ?: 'password123';
+                $user = User::create([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'password' => bcrypt($password),
+                    'current_team_id' => $teamId,
+                ]);
+
+                $roleToAssign = ($validated['role_type'] === 'manager') ? 'dealer-manager' : 'salesman';
+                try {
+                    $user->assignRole($roleToAssign);
+                } catch (\Throwable $e) {}
+
+                $team = Auth::user()?->currentTeam;
+                if ($team && !$team->hasUser($user)) {
+                    $team->users()->attach($user, ['role' => ($validated['role_type'] === 'manager' ? 'admin' : 'editor')]);
+                }
+            }
+            $userId = $user->id;
+        }
+
+        $staff = StaffMember::create([
+            'team_id' => $teamId,
+            'user_id' => $userId,
+            'outlet_id' => $validated['outlet_id'] ?? null,
+            'name' => $validated['name'],
+            'phone' => $validated['phone'],
+            'email' => $validated['email'] ?? null,
+            'designation' => $validated['designation'],
+            'role_type' => $validated['role_type'],
+            'nid' => $validated['nid'] ?? null,
+            'present_address' => $validated['present_address'] ?? null,
+            'permanent_address' => $validated['permanent_address'] ?? null,
+            'joining_date' => $validated['joining_date'] ?? now()->toDateString(),
+            'monthly_salary' => $validated['monthly_salary'] ?? 0,
+            'status' => 'active',
+            'emergency_contact' => $validated['emergency_contact'] ?? null,
+            'has_login_access' => $hasAccess,
+        ]);
+
+        return redirect()->route('dealer.staff.show', $staff->id)
+            ->with('success', "কর্মী/ম্যানেজার '{$staff->name}' সফলভাবে নিবন্ধিত হয়েছে!");
+    }
+
+    public function showStaff($id)
+    {
+        $teamId = $this->getTeamId();
+        $staff = StaffMember::with(['outlet', 'user', 'salaries.recorder'])
+            ->where('id', $id);
+
+        if (!Auth::user()->hasRole('super-admin')) {
+            $staff->where('team_id', $teamId);
+        }
+
+        $staff = $staff->firstOrFail();
+
+        $salaries = $staff->salaries()->orderBy('payment_date', 'desc')->get();
+        $totalPaid = $staff->totalPaid();
+        $totalThisYear = $staff->totalThisYear();
+        $totalThisMonth = $staff->totalThisMonth();
+        $advancePaid = $staff->salaries()->where('payment_type', 'advance')->sum('amount');
+        $outlets = Outlet::where('team_id', $staff->team_id)->get();
+
+        return view('dealer.staff.show', compact('staff', 'salaries', 'totalPaid', 'totalThisYear', 'totalThisMonth', 'advancePaid', 'outlets'));
+    }
+
+    public function storeStaffSalary(Request $request, $id)
+    {
+        $teamId = $this->getTeamId();
+        $staff = StaffMember::where('id', $id);
+        if (!Auth::user()->hasRole('super-admin')) {
+            $staff->where('team_id', $teamId);
+        }
+        $staff = $staff->firstOrFail();
+
+        $validated = $request->validate([
+            'month_year' => 'required|string|max:50',
+            'payment_date' => 'required|date',
+            'amount' => 'required|numeric|min:1',
+            'payment_type' => 'required|string', // salary, advance, bonus, allowance
+            'payment_method' => 'required|string', // cash, bkash, nagad, bank
+            'note' => 'nullable|string|max:500',
+        ]);
+
+        StaffSalary::create([
+            'team_id' => $staff->team_id,
+            'staff_member_id' => $staff->id,
+            'month_year' => $validated['month_year'],
+            'payment_date' => $validated['payment_date'],
+            'amount' => $validated['amount'],
+            'payment_type' => $validated['payment_type'],
+            'payment_method' => $validated['payment_method'],
+            'note' => $validated['note'] ?? null,
+            'recorded_by' => Auth::id(),
+        ]);
+
+        return back()->with('success', "৳ " . number_format($validated['amount']) . " টাকা বেতন/পরিশোধের এন্ট্রি সফলভাবে সম্পন্ন হয়েছে!");
+    }
+
+    public function destroyStaffSalary($id)
+    {
+        $teamId = $this->getTeamId();
+        $salary = StaffSalary::where('id', $id);
+        if (!Auth::user()->hasRole('super-admin')) {
+            $salary->where('team_id', $teamId);
+        }
+        $salary = $salary->firstOrFail();
+        $salary->delete();
+
+        return back()->with('success', 'বেতনের এন্ট্রিটি সফলভাবে মুছে ফেলা হয়েছে।');
+    }
+
+    public function destroyStaff($id)
+    {
+        $teamId = $this->getTeamId();
+        $staff = StaffMember::where('id', $id);
+        if (!Auth::user()->hasRole('super-admin')) {
+            $staff->where('team_id', $teamId);
+        }
+        $staff = $staff->firstOrFail();
+        $staffName = $staff->name;
+        $staff->delete();
+
+        return redirect()->route('dealer.staff.index')->with('success', "কর্মী '{$staffName}' এর প্রোফাইল ও রেকর্ড সফলভাবে মুছে ফেলা হয়েছে।");
     }
 
     // 11. My Subscription

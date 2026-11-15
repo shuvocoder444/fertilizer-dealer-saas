@@ -6,9 +6,9 @@
             <span>বাংলাদেশের সার, বালাইনাশক ও বীজ ডিলারদের জন্য ডিজিটাল অ্যাকাউন্টিং ও ইনভেন্টরি ম্যানেজমেন্ট প্ল্যাটফর্ম</span>
         </div>
         <div class="flex items-center gap-4 text-[11px]">
-            <a href="tel:+8801700000000" class="hover:text-white flex items-center gap-1 transition">
+            <a href="tel:+8801790830250" class="hover:text-white flex items-center gap-1 transition">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                হটলাইন: <span>+৮৮০ ১৭০০-০০০০০০</span>
+                হটলাইন: <span>+৮৮০ ১৭৯০-৮৩০২৫০</span>
             </a>
             <span class="text-emerald-700">|</span>
             <span class="text-emerald-300">সকাল ৯টা - রাত ১০টা</span>

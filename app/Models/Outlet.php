@@ -17,4 +17,9 @@ class Outlet extends Model
     {
         return $this->belongsTo(Team::class);
     }
+
+    public function staffMembers()
+    {
+        return $this->hasMany(StaffMember::class);
+    }
 }

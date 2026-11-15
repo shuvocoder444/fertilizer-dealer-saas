@@ -62,14 +62,14 @@
                         <svg class="w-4 h-4 text-emerald-400 mt-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                         <div>
                             <span class="text-xs text-slate-500 block">হটলাইন সাপোর্ট:</span>
-                            <a href="tel:+8801700000000" class="text-white font-bold hover:text-emerald-400">+৮৮০ ১৭০০-০০০০০০</a>
+                            <a href="tel:+8801790830250" class="text-white font-bold hover:text-emerald-400">+৮৮০ ১৭৯০-৮৩০২৫০</a>
                         </div>
                     </li>
                     <li class="flex items-start gap-2.5">
                         <svg class="w-4 h-4 text-emerald-400 mt-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                         <div>
                             <span class="text-xs text-slate-500 block">ইমেইল:</span>
-                            <span class="text-slate-200">support@fertilizer-saas.com.bd</span>
+                            <span class="text-slate-200">support@webkoders.com</span>
                         </div>
                     </li>
                     <li class="flex items-start gap-2.5">
@@ -87,7 +87,7 @@
         <!-- Bottom Bar & Payment Methods -->
         <div class="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <div>
-                &copy; {{ date('Y') }} সার ডিলার SaaS (Fertilizer Dealer SaaS Platform)। সর্বস্বত্ব সংরক্ষিত।
+                &copy; {{ date('Y') }} All rights reserved. Developed by <a href="http://webkoders.com/" target="_blank" rel="noopener noreferrer" class="text-emerald-400 font-bold hover:underline">webkoders</a>.
             </div>
 
             <div class="flex items-center gap-2">

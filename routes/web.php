@@ -75,6 +75,9 @@ Route::middleware([
     Route::prefix('dealer')->name('dealer.')->group(function () {
         Route::get('/outlets', [DealerOperationsController::class, 'outlets'])->name('outlets.index');
         Route::post('/outlets', [DealerOperationsController::class, 'storeOutlet'])->name('outlets.store');
+        Route::put('/outlets/{id}', [DealerOperationsController::class, 'updateOutlet'])->name('outlets.update');
+        Route::delete('/outlets/{id}', [DealerOperationsController::class, 'destroyOutlet'])->name('outlets.destroy');
+        Route::post('/outlets/{id}/main', [DealerOperationsController::class, 'setMainOutlet'])->name('outlets.make-main');
 
         Route::get('/managers', [DealerOperationsController::class, 'managers'])->name('managers.index');
 
@@ -101,6 +104,11 @@ Route::middleware([
         Route::get('/reports', [DealerOperationsController::class, 'reports'])->name('reports.index');
 
         Route::get('/staff', [DealerOperationsController::class, 'staff'])->name('staff.index');
+        Route::post('/staff', [DealerOperationsController::class, 'storeStaff'])->name('staff.store');
+        Route::get('/staff/{id}', [DealerOperationsController::class, 'showStaff'])->name('staff.show');
+        Route::delete('/staff/{id}', [DealerOperationsController::class, 'destroyStaff'])->name('staff.destroy');
+        Route::post('/staff/{id}/salary', [DealerOperationsController::class, 'storeStaffSalary'])->name('staff.salary.store');
+        Route::delete('/staff/salary/{id}', [DealerOperationsController::class, 'destroyStaffSalary'])->name('staff.salary.destroy');
 
         Route::get('/subscription', [DealerOperationsController::class, 'subscription'])->name('subscription.index');
     });

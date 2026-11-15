@@ -38,6 +38,19 @@
             <main class="flex-1 w-full">
                 {{ $slot }}
             </main>
+
+            <!-- App Footer -->
+            <footer class="bg-white border-t border-gray-200 py-4 px-4 sm:px-6 lg:px-8 mt-auto">
+                <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-2">
+                    <div>
+                        &copy; {{ date('Y') }} All rights reserved. Developed by <a href="http://webkoders.com/" target="_blank" rel="noopener noreferrer" class="text-emerald-600 font-bold hover:underline">webkoders</a>.
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span>হটলাইন: <a href="tel:+8801790830250" class="font-semibold text-gray-700 hover:text-emerald-600">8801790830250</a></span>
+                        <a href="http://webkoders.com/" target="_blank" rel="noopener noreferrer" class="hover:text-emerald-600 font-medium">webkoders.com</a>
+                    </div>
+                </div>
+            </footer>
         </div>
 
         @stack('modals')
